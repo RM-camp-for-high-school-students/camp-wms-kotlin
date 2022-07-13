@@ -39,7 +39,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "疆来计划 仓库管理系统"
-            packageVersion = "1.0.0"
+            packageVersion = "1.0.1"
             windows{
                 iconFile.set(project.file("robomaster_logo_black.ico"))
             }

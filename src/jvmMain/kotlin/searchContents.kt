@@ -86,44 +86,90 @@ fun searchContents() {
                             val conn = DriverManager.getConnection(databaseUrl, databaseUserName, databasePassword)
                             val stmt = conn.createStatement()
                             stmt.execute("use Test")
-                            isGoodsInDatabase = try {
-                                val rs = stmt.executeQuery(
-                                    "select *\n" +
-                                            "from rm_goods\n" +
-                                            "where substring(goodsID from 1 for 6) = '$userInputGoodsID';"
-                                )
-                                rs.next()
-                                rs.getString("goodsName")
-                                true
-                            } catch (e: Exception) {
-                                false
-                            }
-                            isGoodsRemoved = try {
-                                val rs = stmt.executeQuery(
-                                    "select *\n" +
-                                            "from rm_goods\n" +
-                                            "where substring(goodsID from 1 for 6) = '$userInputGoodsID' and isRemoved = 1;"
-                                )
-                                rs.next()
-                                rs.getString("goodsName")
-                                1
-                            } catch (e: Exception) {
-                                0
-                            }
-                            if (isGoodsInDatabase) {
-                                try {
+                            if (userInputGoodsID.length == 6) {
+                                isGoodsInDatabase = try {
                                     val rs = stmt.executeQuery(
                                         "select *\n" +
                                                 "from rm_goods\n" +
-                                                "where substring(goodsID from 1 for 6) = '$userInputGoodsID' and isRemoved = 0 and isAvailable = 1 limit 1"
+                                                "where substring(goodsID from 1 for 6) = '$userInputGoodsID';"
                                     )
                                     rs.next()
-                                    goodsIDFromDatabase = rs.getString("goodsID")
-                                    isGoodsRemoved = 0
-                                    isGoodsAvailable = 1
+                                    rs.getString("goodsName")
+                                    true
                                 } catch (e: Exception) {
-                                    goodsIDFromDatabase = userInputGoodsID + "0001"
+                                    false
                                 }
+                                isGoodsRemoved = try {
+                                    val rs = stmt.executeQuery(
+                                        "select *\n" +
+                                                "from rm_goods\n" +
+                                                "where substring(goodsID from 1 for 6) = '$userInputGoodsID' and isRemoved = 1;"
+                                    )
+                                    rs.next()
+                                    rs.getString("goodsName")
+                                    1
+                                } catch (e: Exception) {
+                                    0
+                                }
+                                if (isGoodsInDatabase) {
+                                    try {
+                                        val rs = stmt.executeQuery(
+                                            "select *\n" +
+                                                    "from rm_goods\n" +
+                                                    "where substring(goodsID from 1 for 6) = '$userInputGoodsID' and isRemoved = 0 and isAvailable = 1 limit 1"
+                                        )
+                                        rs.next()
+                                        goodsIDFromDatabase = rs.getString("goodsID")
+                                        isGoodsRemoved = 0
+                                        isGoodsAvailable = 1
+                                    } catch (e: Exception) {
+                                        goodsIDFromDatabase = userInputGoodsID + "0001"
+                                    }
+                                }
+                            } else if (userInputGoodsID.length == 10) {
+                                isGoodsInDatabase = try {
+                                    val rs = stmt.executeQuery(
+                                        "select *\n" +
+                                                "from rm_goods\n" +
+                                                "where goodsID = '$userInputGoodsID';"
+                                    )
+                                    rs.next()
+                                    rs.getString("goodsName")
+                                    goodsIDFromDatabase = userInputGoodsID
+                                    true
+                                } catch (e: Exception) {
+                                    goodsIDFromDatabase = ""
+                                    false
+                                }
+                                isGoodsRemoved = try {
+                                    val rs = stmt.executeQuery(
+                                        "select *\n" +
+                                                "from rm_goods\n" +
+                                                "where goodsID = '$userInputGoodsID' and isRemoved = 1;"
+                                    )
+                                    rs.next()
+                                    rs.getString("goodsName")
+                                    1
+                                } catch (e: Exception) {
+                                    0
+                                }
+                                if (isGoodsInDatabase) {
+                                    try {
+                                        val rs = stmt.executeQuery(
+                                            "select *\n" +
+                                                    "from rm_goods\n" +
+                                                    "where goodsID = '$userInputGoodsID' and isRemoved = 0 and isAvailable = 1 limit 1"
+                                        )
+                                        rs.next()
+                                        goodsIDFromDatabase = rs.getString("goodsID")
+                                        isGoodsRemoved = 0
+                                        isGoodsAvailable = 1
+                                    } catch (e: Exception) {
+                                        isGoodsAvailable = 0
+                                    }
+                                }
+                            } else {
+                                isDatabaseAvailable = false
                             }
                             conn.close()
                         },
@@ -157,72 +203,112 @@ fun searchContents() {
                                 fontWeight = FontWeight.Normal
                             )
                         } else {
-                            if (isGoodsAvailable == 1) {
-                                Text(
-                                    text = "当前所查询的物资至少有一件在仓库可供借用，请到物资借出界面进行相关操作！",
-                                    fontSize = 18.sp,
-                                    fontFamily = HarmonyOS_Sans_SC,
-                                    fontWeight = FontWeight.Normal
-                                )
-                            } else if (isGoodsRemoved == 1) {
-                                Text(
-                                    text = "当前所查询物资至少有一件已从仓库中移除！",
-                                    fontSize = 18.sp,
-                                    fontFamily = HarmonyOS_Sans_SC,
-                                    fontWeight = FontWeight.Normal
-                                )
+                            if (userInputGoodsID.length == 6) {
+                                if (isGoodsAvailable == 1) {
+                                    Text(
+                                        text = "当前所查询的物资至少有一件在仓库可供借用，请到物资借出界面进行相关操作！",
+                                        fontSize = 18.sp,
+                                        fontFamily = HarmonyOS_Sans_SC,
+                                        fontWeight = FontWeight.Normal
+                                    )
+                                } else if (isGoodsRemoved == 1) {
+                                    Text(
+                                        text = "当前所查询物资至少有一件已从仓库中移除！",
+                                        fontSize = 18.sp,
+                                        fontFamily = HarmonyOS_Sans_SC,
+                                        fontWeight = FontWeight.Normal
+                                    )
+                                } else {
+                                    Text(
+                                        text = "当前所查询物资均已借出！",
+                                        fontSize = 18.sp,
+                                        fontFamily = HarmonyOS_Sans_SC,
+                                        fontWeight = FontWeight.Normal
+                                    )
+                                }
                             } else {
-                                Text(
-                                    text = "当前所查询物资均已借出！",
-                                    fontSize = 18.sp,
-                                    fontFamily = HarmonyOS_Sans_SC,
-                                    fontWeight = FontWeight.Normal
-                                )
+                                if (isGoodsAvailable == 1) {
+                                    Text(
+                                        text = "当前所查询的物资可供借用，请到物资借出界面进行相关操作！",
+                                        fontSize = 18.sp,
+                                        fontFamily = HarmonyOS_Sans_SC,
+                                        fontWeight = FontWeight.Normal
+                                    )
+                                } else if (isGoodsRemoved == 1) {
+                                    Text(
+                                        text = "当前所查询物资已从仓库中移除！",
+                                        fontSize = 18.sp,
+                                        fontFamily = HarmonyOS_Sans_SC,
+                                        fontWeight = FontWeight.Normal
+                                    )
+                                } else {
+                                    Text(
+                                        text = "当前所查询物资已借出！",
+                                        fontSize = 18.sp,
+                                        fontFamily = HarmonyOS_Sans_SC,
+                                        fontWeight = FontWeight.Normal
+                                    )
+                                }
                             }
                         }
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "最近操作",
-                            fontSize = 24.sp,
-                            fontFamily = HarmonyOS_Sans_SC,
-                            fontWeight = FontWeight.Normal
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Row {
-                            Class.forName("com.mysql.cj.jdbc.Driver")
-                            val conn = DriverManager.getConnection(databaseUrl, databaseUserName, databasePassword)
-                            val stmt = conn.createStatement()
-                            stmt.execute("use Test")
-                            val rs = stmt.executeQuery(
-                                "select transactionTime, transactionType, memberID, goodsID, goodsName\n" +
-                                        "from transactions\n" +
-                                        "         join rm_goods using (goodsID)\n" +
-                                        "where goodsID = '$goodsIDFromDatabase'\n" +
-                                        "order by transactionTime desc\n" +
-                                        "limit 3"
-                            )
-                            var counter: Int = 0
-                            while (rs.next()) {
-                                commonMessageCard(
-                                    rs.getInt("transactionType"),
-                                    rs.getString("transactionTime"),
-                                    rs.getString("memberID"),
-                                    rs.getString("goodsID"),
-                                    rs.getString("goodsName")
+                        if (isGoodsInDatabase) {
+                            Row {
+                                Text(
+                                    text = "最近操作",
+                                    fontSize = 24.sp,
+                                    fontFamily = HarmonyOS_Sans_SC,
+                                    fontWeight = FontWeight.Normal
                                 )
                                 Spacer(modifier = Modifier.width(16.dp))
-                                counter++
-                            }
-                            conn.close()
-                            if (counter == 0) {
                                 Text(
-                                    text = "未查询到该物资的操作记录！",
-                                    fontSize = 18.sp,
+                                    text = goodsIDFromDatabase,
+                                    fontSize = 24.sp,
                                     fontFamily = HarmonyOS_Sans_SC,
-                                    fontWeight = FontWeight.Normal
+                                    fontWeight = FontWeight.Light,
+                                    color = Color.Gray
                                 )
                             }
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Row {
+                                Class.forName("com.mysql.cj.jdbc.Driver")
+                                val conn = DriverManager.getConnection(databaseUrl, databaseUserName, databasePassword)
+                                val stmt = conn.createStatement()
+                                stmt.execute("use Test")
+                                val rs = stmt.executeQuery(
+                                    "select transactionTime, transactionType, memberID, goodsID, goodsName\n" +
+                                            "from transactions\n" +
+                                            "         join rm_goods using (goodsID)\n" +
+                                            "where goodsID = '$goodsIDFromDatabase'\n" +
+                                            "order by transactionTime desc\n" +
+                                            "limit 3"
+                                )
+                                var counter: Int = 0
+                                while (rs.next()) {
+                                    commonMessageCard(
+                                        rs.getInt("transactionType"),
+                                        rs.getString("transactionTime"),
+                                        rs.getString("memberID"),
+                                        rs.getString("goodsID"),
+                                        rs.getString("goodsName")
+                                    )
+                                    Spacer(modifier = Modifier.width(16.dp))
+                                    counter++
+                                }
+                                conn.close()
+                                if (counter == 0) {
+                                    Text(
+                                        text = "未查询到该物资的操作记录！",
+                                        fontSize = 18.sp,
+                                        fontFamily = HarmonyOS_Sans_SC,
+                                        fontWeight = FontWeight.Normal
+                                    )
+                                }
+                            }
                         }
+                    }
+                    if (userInputGoodsID.length == 5 || userInputGoodsID.length == 9) {
+                        isButtonClicked = false
                     }
                 }
             }

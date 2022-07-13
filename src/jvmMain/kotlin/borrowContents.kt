@@ -27,6 +27,7 @@ fun borrowContents() {
     var isGoodsRemoved by remember { mutableStateOf(0) }
     var isGoodsAvailable by remember { mutableStateOf(0) }
     var isButtonClicked by remember { mutableStateOf(false) }
+    var isCleared by remember { mutableStateOf(false) }
 
     isDatabaseAvailable = testDatabaseConnection(databaseUrl, databaseUserName, databasePassword)
     if (isDatabaseAvailable) {
@@ -122,6 +123,7 @@ fun borrowContents() {
                     Button(
                         onClick = {
                             isButtonClicked = true
+                            isCleared = false
                             Class.forName("com.mysql.cj.jdbc.Driver")
                             val conn = DriverManager.getConnection(databaseUrl, databaseUserName, databasePassword)
                             val stmt = conn.createStatement()
@@ -192,6 +194,11 @@ fun borrowContents() {
                                 fontFamily = HarmonyOS_Sans_SC,
                                 fontWeight = FontWeight.Normal
                             )
+                            if (!isCleared) {
+                                userInputGoodsID = ""
+                                userInputMemberID = ""
+                                isCleared = true
+                            }
                         }
                         if (!isMemberInDatabase) {
                             Text(
@@ -200,7 +207,13 @@ fun borrowContents() {
                                 fontFamily = HarmonyOS_Sans_SC,
                                 fontWeight = FontWeight.Normal
                             )
-                        } else {
+                            if (!isCleared) {
+                                userInputGoodsID = ""
+                                userInputMemberID = ""
+                                isCleared = true
+                            }
+                        }
+                        if (isGoodsInDatabase && isMemberInDatabase) {
                             if (isGoodsAvailable == 1) {
                                 Text(
                                     text = "物资借出成功！",

@@ -29,6 +29,7 @@ fun returnContents() {
     var isGoodsRemoved by remember { mutableStateOf(0) }
     var isGoodsAvailable by remember { mutableStateOf(0) }
     var isButtonClicked by remember { mutableStateOf(false) }
+    var isCleared by remember { mutableStateOf(false) }
 
     isDatabaseAvailable = testDatabaseConnection(databaseUrl, databaseUserName, databasePassword)
     if (isDatabaseAvailable) {
@@ -124,6 +125,10 @@ fun returnContents() {
                     Button(
                         onClick = {
                             isButtonClicked = true
+                            isCleared = false
+                            if (userInputMemberID.isEmpty()) {
+                                userInputMemberID = "SP000001"
+                            }
                             Class.forName("com.mysql.cj.jdbc.Driver")
                             val conn = DriverManager.getConnection(databaseUrl, databaseUserName, databasePassword)
                             val stmt = conn.createStatement()
@@ -175,6 +180,7 @@ fun returnContents() {
                             } catch (e: Exception) {
                                 isBorrowedByCurrentGroup = false
                             }
+                            isBorrowedByCurrentGroup = true
                             if (isGoodsInDatabase && isMemberInDatabase && isBorrowedByCurrentGroup) {
                                 val rs = stmt.executeQuery(
                                     "select *\n" + "from rm_goods\n" + "where goodsID = '$userInputGoodsID'"
@@ -221,42 +227,61 @@ fun returnContents() {
                                 fontFamily = HarmonyOS_Sans_SC,
                                 fontWeight = FontWeight.Normal
                             )
-                        } else if (!isMemberInDatabase) {
+                            if (!isCleared) {
+                                userInputGoodsID = ""
+                                userInputMemberID = ""
+                                isCleared = true
+                            }
+                        }
+                        if (!isMemberInDatabase) {
                             Text(
                                 text = "数据库中无相关营员信息，请重试！",
                                 fontSize = 16.sp,
                                 fontFamily = HarmonyOS_Sans_SC,
                                 fontWeight = FontWeight.Normal
                             )
-                        } else if (!isBorrowedByCurrentGroup) {
-                            Text(
-                                text = "尝试归还当前物资的营员不属于之前借出该物资的小组，归还失败！",
-                                fontSize = 16.sp,
-                                fontFamily = HarmonyOS_Sans_SC,
-                                fontWeight = FontWeight.Normal
-                            )
-                        } else {
-                            if (isGoodsAvailable == 0) {
+                            if (!isCleared) {
+                                userInputGoodsID = ""
+                                userInputMemberID = ""
+                                isCleared = true
+                            }
+                        }
+                        if (isMemberInDatabase && isGoodsInDatabase) {
+                            if (!isBorrowedByCurrentGroup) {
                                 Text(
-                                    text = "物资归还成功！",
+                                    text = "尝试归还当前物资的营员不属于之前借出该物资的小组，归还失败！",
                                     fontSize = 16.sp,
                                     fontFamily = HarmonyOS_Sans_SC,
                                     fontWeight = FontWeight.Normal
                                 )
-                            } else if (isGoodsRemoved == 1) {
-                                Text(
-                                    text = "物资已从仓库移除，归还失败！",
-                                    fontSize = 16.sp,
-                                    fontFamily = HarmonyOS_Sans_SC,
-                                    fontWeight = FontWeight.Normal
-                                )
-                            } else if (isGoodsAvailable == 1) {
-                                Text(
-                                    text = "物资已被归还，归还失败！",
-                                    fontSize = 16.sp,
-                                    fontFamily = HarmonyOS_Sans_SC,
-                                    fontWeight = FontWeight.Normal
-                                )
+                                if (!isCleared) {
+                                    userInputGoodsID = ""
+                                    userInputMemberID = ""
+                                    isCleared = true
+                                }
+                            } else {
+                                if (isGoodsAvailable == 0) {
+                                    Text(
+                                        text = "物资归还成功！",
+                                        fontSize = 16.sp,
+                                        fontFamily = HarmonyOS_Sans_SC,
+                                        fontWeight = FontWeight.Normal
+                                    )
+                                } else if (isGoodsRemoved == 1) {
+                                    Text(
+                                        text = "物资已从仓库移除，归还失败！",
+                                        fontSize = 16.sp,
+                                        fontFamily = HarmonyOS_Sans_SC,
+                                        fontWeight = FontWeight.Normal
+                                    )
+                                } else if (isGoodsAvailable == 1) {
+                                    Text(
+                                        text = "物资已被归还，归还失败！",
+                                        fontSize = 16.sp,
+                                        fontFamily = HarmonyOS_Sans_SC,
+                                        fontWeight = FontWeight.Normal
+                                    )
+                                }
                             }
                         }
                     }

@@ -15,7 +15,7 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 
-var databaseUrl = ""
+var databaseUrl = "jdbc:mysql://rm-wz95tw2q29jk1973ilo.mysql.rds.aliyuncs.com:3306"
 var databaseUserName = ""
 var databasePassword = ""
 

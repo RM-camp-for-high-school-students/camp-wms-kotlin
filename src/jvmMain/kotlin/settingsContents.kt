@@ -19,7 +19,6 @@ import androidx.compose.ui.unit.sp
 @Preview
 @Composable
 fun settingsContents() {
-    var userInputUrl by remember { mutableStateOf("") }
     var userInputUserName by remember { mutableStateOf("") }
     var userInputPassword by remember { mutableStateOf("") }
 
@@ -37,42 +36,42 @@ fun settingsContents() {
                     fontFamily = HarmonyOS_Sans_SC,
                     fontWeight = FontWeight.Normal
                 )
-                Spacer(modifier = Modifier.height(16.dp))
-                Column {
-                    Text(
-                        text = "数据库地址",
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
-                        textAlign = TextAlign.Start,
-                        color = blue,
-                        fontFamily = HarmonyOS_Sans_SC,
-                        fontWeight = FontWeight.Normal
-                    )
-                    TextField(
-                        value = userInputUrl,
-                        onValueChange = { userInputUrl = it },
-                        label = null,
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = TextFieldDefaults.textFieldColors(
-                            backgroundColor = lightBlue,
-                            cursorColor = Color.Black,
-                            disabledLabelColor = lightBlue,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent
-                        ),
-                        shape = RoundedCornerShape(8.dp),
-                        singleLine = true,
-                        trailingIcon = {
-                            if (userInputUrl.isNotEmpty()) {
-                                IconButton(onClick = { userInputUrl = "" }) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Close, contentDescription = null
-                                    )
-                                }
-                            }
-                        },
-                        textStyle = TextStyle(fontFamily = HarmonyOS_Sans_SC, fontWeight = FontWeight.Normal)
-                    )
-                }
+//                Spacer(modifier = Modifier.height(16.dp))
+//                Column {
+//                    Text(
+//                        text = "数据库地址",
+//                        modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
+//                        textAlign = TextAlign.Start,
+//                        color = blue,
+//                        fontFamily = HarmonyOS_Sans_SC,
+//                        fontWeight = FontWeight.Normal
+//                    )
+//                    TextField(
+//                        value = userInputUrl,
+//                        onValueChange = { userInputUrl = it },
+//                        label = null,
+//                        modifier = Modifier.fillMaxWidth(),
+//                        colors = TextFieldDefaults.textFieldColors(
+//                            backgroundColor = lightBlue,
+//                            cursorColor = Color.Black,
+//                            disabledLabelColor = lightBlue,
+//                            focusedIndicatorColor = Color.Transparent,
+//                            unfocusedIndicatorColor = Color.Transparent
+//                        ),
+//                        shape = RoundedCornerShape(8.dp),
+//                        singleLine = true,
+//                        trailingIcon = {
+//                            if (userInputUrl.isNotEmpty()) {
+//                                IconButton(onClick = { userInputUrl = "" }) {
+//                                    Icon(
+//                                        imageVector = Icons.Outlined.Close, contentDescription = null
+//                                    )
+//                                }
+//                            }
+//                        },
+//                        textStyle = TextStyle(fontFamily = HarmonyOS_Sans_SC, fontWeight = FontWeight.Normal)
+//                    )
+//                }
                 Spacer(modifier = Modifier.height(16.dp))
                 Column {
                     Text(
@@ -153,10 +152,8 @@ fun settingsContents() {
 
                 Button(
                     onClick = {
-                        val modifiedUrl = "jdbc:mysql://" + userInputUrl + ":3306"
-                        testResult = testDatabaseConnection(modifiedUrl, userInputUserName, userInputPassword)
+                        testResult = testDatabaseConnection(databaseUrl, userInputUserName, userInputPassword)
                         if (testResult) {
-                            databaseUrl = modifiedUrl
                             databaseUserName = userInputUserName
                             databasePassword = userInputPassword
                             isDatabaseConnected = true
