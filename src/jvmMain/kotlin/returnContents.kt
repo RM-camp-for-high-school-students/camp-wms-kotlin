@@ -132,7 +132,7 @@ fun returnContents() {
                             Class.forName("com.mysql.cj.jdbc.Driver")
                             val conn = DriverManager.getConnection(databaseUrl, databaseUserName, databasePassword)
                             val stmt = conn.createStatement()
-                            stmt.execute("use Test")
+                            stmt.execute("use $currentDatabase")
                             isGoodsInDatabase = try {
                                 val rs = stmt.executeQuery(
                                     "select *\n" + "from rm_goods\n" + "where goodsID = '$userInputGoodsID';"
@@ -298,7 +298,7 @@ fun returnContents() {
                             Class.forName("com.mysql.cj.jdbc.Driver")
                             val conn = DriverManager.getConnection(databaseUrl, databaseUserName, databasePassword)
                             val stmt = conn.createStatement()
-                            stmt.execute("use Test")
+                            stmt.execute("use $currentDatabase")
                             val rs = stmt.executeQuery(
                                 "select transactionTime, transactionType, memberID, goodsID, goodsName\n" + "from transactions\n" + "         join rm_goods using (goodsID)\n" + "where goodsID = '$userInputGoodsID'\n" + "order by transactionTime desc\n" + "limit 3"
                             )

@@ -85,7 +85,7 @@ fun searchContents() {
                             Class.forName("com.mysql.cj.jdbc.Driver")
                             val conn = DriverManager.getConnection(databaseUrl, databaseUserName, databasePassword)
                             val stmt = conn.createStatement()
-                            stmt.execute("use Test")
+                            stmt.execute("use $currentDatabase")
                             if (userInputGoodsID.length == 6) {
                                 isGoodsInDatabase = try {
                                     val rs = stmt.executeQuery(
@@ -274,7 +274,7 @@ fun searchContents() {
                                 Class.forName("com.mysql.cj.jdbc.Driver")
                                 val conn = DriverManager.getConnection(databaseUrl, databaseUserName, databasePassword)
                                 val stmt = conn.createStatement()
-                                stmt.execute("use Test")
+                                stmt.execute("use $currentDatabase")
                                 val rs = stmt.executeQuery(
                                     "select transactionTime, transactionType, memberID, goodsID, goodsName\n" +
                                             "from transactions\n" +

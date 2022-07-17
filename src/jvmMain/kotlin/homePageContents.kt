@@ -23,7 +23,7 @@ fun homePageContents() {
         Class.forName("com.mysql.cj.jdbc.Driver")
         var conn = DriverManager.getConnection(databaseUrl, databaseUserName, databasePassword)
         var stmt = conn.createStatement()
-        stmt.execute("use Test")
+        stmt.execute("use $currentDatabase")
         var rs = stmt.executeQuery("select count(*) from rm_goods")
         rs.next()
         goodsCount = rs.getInt("count(*)")
@@ -82,7 +82,7 @@ fun homePageContents() {
                 Row {
                     conn = DriverManager.getConnection(databaseUrl, databaseUserName, databasePassword)
                     stmt = conn.createStatement()
-                    stmt.execute("use Test")
+                    stmt.execute("use $currentDatabase")
                     rs = stmt.executeQuery(
                         "select transactionTime, transactionType, memberID, goodsID, goodsName\n" +
                                 "from transactions\n" +
