@@ -85,50 +85,57 @@ fun addContents() {
                             if (goodsIDs.isNotEmpty()) {
                                 goodsCount = goodsIDs.count()
                                 for (goodsID in goodsIDs) {
-                                    val goodsID05 = goodsID.substring(0..5)
-                                    val isGoodsIDValid = try {
-                                        val rs = stmt.executeQuery(
-                                            "select goodsID_05 from bom where goodsID_05 = '$goodsID05'"
-                                        )
-                                        rs.next()
-                                        rs.getString("goodsID_05")
-                                        true
-                                    } catch (e: Exception) {
-                                        false
-                                    }
-                                    if (!isGoodsIDValid) {
-                                        failedTrials++
-                                        userInputGoodsIDs += goodsID + "\n"
-                                        continue
-                                    }
+                                    if (goodsID.length == 10) {
+                                        val goodsID05 = goodsID.substring(0..5)
+                                        val isGoodsIDValid = try {
+                                            val rs = stmt.executeQuery(
+                                                "select goodsID_05 from bom where goodsID_05 = '$goodsID05'"
+                                            )
+                                            rs.next()
+                                            rs.getString("goodsID_05")
+                                            true
+                                        } catch (e: Exception) {
+                                            false
+                                        }
+                                        if (!isGoodsIDValid) {
+                                            failedTrials++
+                                            userInputGoodsIDs += goodsID + "\n"
+                                            continue
+                                        }
 
-                                    val isGoodsInDatabase = try {
+                                        val isGoodsInDatabase = try {
+                                            val rs = stmt.executeQuery(
+                                                "select * from rm_goods where goodsID = '$goodsID'"
+                                            )
+                                            rs.next()
+                                            rs.getString("goodsName")
+                                            true
+                                        } catch (e: Exception) {
+                                            false
+                                        }
+                                        if (isGoodsInDatabase) {
+                                            failedTrials++
+                                            userInputGoodsIDs += goodsID + "\n"
+                                            continue
+                                        }
                                         val rs = stmt.executeQuery(
-                                            "select * from rm_goods where goodsID = '$goodsID'"
+                                            "select * from bom where goodsID_05 = '$goodsID05'"
                                         )
                                         rs.next()
-                                        rs.getString("goodsName")
-                                        true
-                                    } catch (e: Exception) {
-                                        false
-                                    }
-                                    if (isGoodsInDatabase) {
+                                        val goodsName = rs.getString("goodsName")
+                                        val goodsType = rs.getString("goodsType")
+                                        stmt.execute(
+                                            "insert rm_goods\n" +
+                                                    "(goodsID, goodsID_05, goodsType, goodsName, isRemoved, isAvailable)\n" +
+                                                    "value\n" +
+                                                    "('$goodsID', '$goodsID05', '$goodsType', '$goodsName', 0, 1)"
+                                        )
+                                    } else if (goodsID == ""){
+                                        goodsCount--
+                                    } else {
                                         failedTrials++
                                         userInputGoodsIDs += goodsID + "\n"
-                                        continue
                                     }
-                                    val rs = stmt.executeQuery(
-                                        "select * from bom where goodsID_05 = '$goodsID05'"
-                                    )
-                                    rs.next()
-                                    val goodsName = rs.getString("goodsName")
-                                    val goodsType = rs.getString("goodsType")
-                                    stmt.execute(
-                                        "insert rm_goods\n" +
-                                                "(goodsID, goodsID_05, goodsType, goodsName, isRemoved, isAvailable)\n" +
-                                                "value\n" +
-                                                "('$goodsID', '$goodsID05', '$goodsType', '$goodsName', 0, 1)"
-                                    )
                                 }
                             } else {
                                 goodsCount = 0

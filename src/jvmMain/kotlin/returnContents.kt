@@ -124,8 +124,13 @@ fun returnContents() {
                         userInputGoodsIDs = ""
 
                         if (goodsIDs.isNotEmpty()) {
-                            lastGoodsID = goodsIDs.last()
-                            goodsCount = goodsIDs.count()
+                            if (goodsIDs.last() == "") {
+                                lastGoodsID = goodsIDs[goodsIDs.lastIndex - 1]
+                                goodsCount = goodsIDs.count() - 1
+                            } else {
+                                lastGoodsID = goodsIDs.last()
+                                goodsCount = goodsIDs.count()
+                            }
 
                             Class.forName("com.mysql.cj.jdbc.Driver")
                             val conn = DriverManager.getConnection(databaseUrl, databaseUserName, databasePassword)
@@ -146,46 +151,48 @@ fun returnContents() {
                             }
                             if (isMemberInDatabase) {
                                 for (goodsID in goodsIDs) {
-                                    var isGoodsRemoved: Int
-                                    var isGoodsAvailable: Int
-                                    val isGoodsInDatabase = try {
-                                        val rs = stmt.executeQuery(
-                                            "select *\n" + "from rm_goods\n" + "where goodsID = '$goodsID';"
-                                        )
-                                        rs.next()
-                                        rs.getString("goodsName")
-                                        true
-                                    } catch (e: Exception) {
-                                        false
-                                    }
-                                    if (!isGoodsInDatabase) {
-                                        failedTrials++
-                                        userInputGoodsIDs += goodsID + "\n"
-                                        continue
-                                    }
-                                    try {
-                                        val rs = stmt.executeQuery(
-                                            "select *\n" + "from rm_goods\n" + "where goodsID = '$goodsID'"
-                                        )
-                                        rs.next()
-                                        isGoodsRemoved = rs.getInt("isRemoved")
-                                        isGoodsAvailable = rs.getInt("isAvailable")
-                                    } catch (e: Exception) {
-                                        failedTrials++
-                                        userInputGoodsIDs += goodsID + "\n"
-                                        continue
-                                    }
-                                    if (isGoodsRemoved == 0 && isGoodsAvailable == 0) {
-                                        stmt.execute(
-                                            "insert transactions\n" + "(memberID, goodsID, transactionType)\n" + "value\n" + "('$userInputMemberID','$goodsID',0);"
-                                        )
-                                        stmt.execute(
-                                            "update rm_goods\n" + "set isAvailable = 1\n" + "where goodsID = '$goodsID';"
-                                        )
-                                    } else {
-                                        failedTrials++
-                                        userInputGoodsIDs += goodsID + "\n"
-                                        continue
+                                    if (goodsID != "") {
+                                        var isGoodsRemoved: Int
+                                        var isGoodsAvailable: Int
+                                        val isGoodsInDatabase = try {
+                                            val rs = stmt.executeQuery(
+                                                "select *\n" + "from rm_goods\n" + "where goodsID = '$goodsID';"
+                                            )
+                                            rs.next()
+                                            rs.getString("goodsName")
+                                            true
+                                        } catch (e: Exception) {
+                                            false
+                                        }
+                                        if (!isGoodsInDatabase) {
+                                            failedTrials++
+                                            userInputGoodsIDs += goodsID + "\n"
+                                            continue
+                                        }
+                                        try {
+                                            val rs = stmt.executeQuery(
+                                                "select *\n" + "from rm_goods\n" + "where goodsID = '$goodsID'"
+                                            )
+                                            rs.next()
+                                            isGoodsRemoved = rs.getInt("isRemoved")
+                                            isGoodsAvailable = rs.getInt("isAvailable")
+                                        } catch (e: Exception) {
+                                            failedTrials++
+                                            userInputGoodsIDs += goodsID + "\n"
+                                            continue
+                                        }
+                                        if (isGoodsRemoved == 0 && isGoodsAvailable == 0) {
+                                            stmt.execute(
+                                                "insert transactions\n" + "(memberID, goodsID, transactionType)\n" + "value\n" + "('$userInputMemberID','$goodsID',0);"
+                                            )
+                                            stmt.execute(
+                                                "update rm_goods\n" + "set isAvailable = 1\n" + "where goodsID = '$goodsID';"
+                                            )
+                                        } else {
+                                            failedTrials++
+                                            userInputGoodsIDs += goodsID + "\n"
+                                            continue
+                                        }
                                     }
                                 }
                                 conn.close()
