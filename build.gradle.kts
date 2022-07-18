@@ -1,6 +1,5 @@
 import org.jetbrains.compose.compose
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("multiplatform")
@@ -39,7 +38,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "疆来计划 仓库管理系统"
-            packageVersion = "1.0.1"
+            packageVersion = "1.1.0"
             windows{
                 iconFile.set(project.file("robomaster_logo_black.ico"))
             }

@@ -19,17 +19,16 @@ import java.sql.DriverManager
 @Composable
 fun returnContents() {
     var isDatabaseAvailable by remember { mutableStateOf(false) }
-    var userInputGoodsID by remember { mutableStateOf("") }
+    var userInputGoodsIDs by remember { mutableStateOf("") }
     var userInputMemberID by remember { mutableStateOf("") }
-    var isGoodsInDatabase by remember { mutableStateOf(false) }
-    var isMemberInDatabase by remember { mutableStateOf(false) }
-    var isBorrowedByCurrentGroup by remember { mutableStateOf(false) }
-    var isGoodsRemoved by remember { mutableStateOf(0) }
-    var isGoodsAvailable by remember { mutableStateOf(0) }
     var isButtonClicked by remember { mutableStateOf(false) }
-    var isCleared by remember { mutableStateOf(false) }
+    var isMemberInDatabase by remember { mutableStateOf(false) }
+    var lastGoodsID = ""
+    var goodsCount = 0
+    var failedTrials = 0
 
     isDatabaseAvailable = testDatabaseConnection(databaseUrl, databaseUserName, databasePassword)
+
     if (isDatabaseAvailable) {
         MaterialTheme {
             Spacer(modifier = Modifier.width(32.dp))
@@ -37,13 +36,6 @@ fun returnContents() {
                 Column {
                     Text(
                         text = "物资归还", fontSize = 32.sp, fontFamily = HarmonyOS_Sans_SC, fontWeight = FontWeight.Medium
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "待归还物资信息",
-                        fontSize = 24.sp,
-                        fontFamily = HarmonyOS_Sans_SC,
-                        fontWeight = FontWeight.Normal
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Row {
@@ -57,10 +49,10 @@ fun returnContents() {
                                 fontWeight = FontWeight.Normal
                             )
                             TextField(
-                                value = userInputGoodsID,
-                                onValueChange = { userInputGoodsID = it },
+                                value = userInputGoodsIDs,
+                                onValueChange = { userInputGoodsIDs = it },
                                 label = null,
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth().height(89.dp),
                                 colors = TextFieldDefaults.textFieldColors(
                                     backgroundColor = lightBlue,
                                     cursorColor = Color.Black,
@@ -69,10 +61,10 @@ fun returnContents() {
                                     unfocusedIndicatorColor = Color.Transparent
                                 ),
                                 shape = RoundedCornerShape(8.dp),
-                                singleLine = true,
+                                singleLine = false,
                                 trailingIcon = {
-                                    if (userInputGoodsID.isNotEmpty()) {
-                                        IconButton(onClick = { userInputGoodsID = ""; isButtonClicked = false }) {
+                                    if (userInputGoodsIDs.isNotEmpty()) {
+                                        IconButton(onClick = { userInputGoodsIDs = ""; isButtonClicked = false; }) {
                                             Icon(
                                                 imageVector = Icons.Outlined.Close, contentDescription = null
                                             )
@@ -96,7 +88,7 @@ fun returnContents() {
                                 value = userInputMemberID,
                                 onValueChange = { userInputMemberID = it },
                                 label = null,
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth().height(89.dp),
                                 colors = TextFieldDefaults.textFieldColors(
                                     backgroundColor = lightBlue,
                                     cursorColor = Color.Black,
@@ -118,28 +110,29 @@ fun returnContents() {
                                 textStyle = TextStyle(fontFamily = HarmonyOS_Sans_SC, fontWeight = FontWeight.Normal)
                             )
                         }
+
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(
-                        onClick = {
-                            isButtonClicked = true
-                            isCleared = false
-                            if (userInputMemberID.isEmpty()) {
-                                userInputMemberID = "SP000001"
-                            }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = {
+                        isButtonClicked = true
+
+                        val goodsIDs = userInputGoodsIDs.split("\r?\n|\r".toRegex()).toTypedArray()
+                        failedTrials = 0
+
+                        userInputGoodsIDs = ""
+
+                        if (goodsIDs.isNotEmpty()) {
+                            lastGoodsID = goodsIDs.last()
+                            goodsCount = goodsIDs.count()
+
                             Class.forName("com.mysql.cj.jdbc.Driver")
                             val conn = DriverManager.getConnection(databaseUrl, databaseUserName, databasePassword)
                             val stmt = conn.createStatement()
                             stmt.execute("use $currentDatabase")
-                            isGoodsInDatabase = try {
-                                val rs = stmt.executeQuery(
-                                    "select *\n" + "from rm_goods\n" + "where goodsID = '$userInputGoodsID';"
-                                )
-                                rs.next()
-                                rs.getString("goodsName")
-                                true
-                            } catch (e: Exception) {
-                                false
+                            if (userInputMemberID.isEmpty()) {
+                                userInputMemberID = "SP000001"
                             }
                             isMemberInDatabase = try {
                                 val rs = stmt.executeQuery(
@@ -151,143 +144,89 @@ fun returnContents() {
                             } catch (e: Exception) {
                                 false
                             }
-                            try {
-                                var rs = stmt.executeQuery(
-                                    "select memberID from transactions\n" +
-                                            "where goodsID = '$userInputGoodsID'\n" +
-                                            "order by transactionTime desc\n" +
-                                            "limit 1;"
-                                )
-                                rs.next()
-                                val memberIDFromDatabase = rs.getString("memberID")
-                                rs = stmt.executeQuery(
-                                    "select groupID from group_members\n" +
-                                            "where memberID = '$memberIDFromDatabase';"
-                                )
-                                rs.next()
-                                val groupIDFromDatabase = rs.getString("groupID")
-                                rs = stmt.executeQuery(
-                                    "select memberID from group_members\n" +
-                                            "where groupID = '$groupIDFromDatabase';"
-                                )
-                                while (rs.next()) {
-                                    if (rs.getString("memberID") == userInputMemberID) {
-                                        isBorrowedByCurrentGroup = true
+                            if (isMemberInDatabase) {
+                                for (goodsID in goodsIDs) {
+                                    var isGoodsRemoved: Int
+                                    var isGoodsAvailable: Int
+                                    val isGoodsInDatabase = try {
+                                        val rs = stmt.executeQuery(
+                                            "select *\n" + "from rm_goods\n" + "where goodsID = '$goodsID';"
+                                        )
+                                        rs.next()
+                                        rs.getString("goodsName")
+                                        true
+                                    } catch (e: Exception) {
+                                        false
+                                    }
+                                    if (!isGoodsInDatabase) {
+                                        failedTrials++
+                                        userInputGoodsIDs += goodsID + "\n"
+                                        continue
+                                    }
+                                    try {
+                                        val rs = stmt.executeQuery(
+                                            "select *\n" + "from rm_goods\n" + "where goodsID = '$goodsID'"
+                                        )
+                                        rs.next()
+                                        isGoodsRemoved = rs.getInt("isRemoved")
+                                        isGoodsAvailable = rs.getInt("isAvailable")
+                                    } catch (e: Exception) {
+                                        failedTrials++
+                                        userInputGoodsIDs += goodsID + "\n"
+                                        continue
+                                    }
+                                    if (isGoodsRemoved == 0 && isGoodsAvailable == 0) {
+                                        stmt.execute(
+                                            "insert transactions\n" + "(memberID, goodsID, transactionType)\n" + "value\n" + "('$userInputMemberID','$goodsID',0);"
+                                        )
+                                        stmt.execute(
+                                            "update rm_goods\n" + "set isAvailable = 1\n" + "where goodsID = '$goodsID';"
+                                        )
+                                    } else {
+                                        failedTrials++
+                                        userInputGoodsIDs += goodsID + "\n"
+                                        continue
                                     }
                                 }
-                            } catch (e: Exception) {
-                                isBorrowedByCurrentGroup = false
+                                conn.close()
                             }
-                            isBorrowedByCurrentGroup = true
-                            if (isGoodsInDatabase && isMemberInDatabase && isBorrowedByCurrentGroup) {
-                                val rs = stmt.executeQuery(
-                                    "select *\n" + "from rm_goods\n" + "where goodsID = '$userInputGoodsID'"
-                                )
-                                rs.next()
-                                isGoodsRemoved = rs.getInt("isRemoved")
-                                isGoodsAvailable = rs.getInt("isAvailable")
-                                if (isGoodsRemoved == 0 && isGoodsAvailable == 0) {
-                                    stmt.execute(
-                                        "insert transactions\n" + "(memberID, goodsID, transactionType)\n" + "value\n" + "('$userInputMemberID','$userInputGoodsID',0);"
-                                    )
-                                    stmt.execute(
-                                        "update rm_goods\n" + "set isAvailable = 1\n" + "where goodsID = '$userInputGoodsID';"
-                                    )
-                                }
-                            }
-                        },
-                        contentPadding = PaddingValues(
-                            start = 20.dp, top = 12.dp, end = 20.dp, bottom = 12.dp
-                        ), colors = ButtonDefaults.buttonColors(
-                            backgroundColor = blue,
-                        )
-                    ) {
-                        Icon(
-                            Icons.Filled.KeyboardArrowDown,
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(ButtonDefaults.IconSize)
-                        )
-                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                        } else {
+                            goodsCount = 0
+                        }
+                    }, contentPadding = PaddingValues(
+                        start = 20.dp, top = 12.dp, end = 20.dp, bottom = 12.dp
+                    ), colors = ButtonDefaults.buttonColors(
+                        backgroundColor = blue,
+                    )
+                ) {
+                    Icon(
+                        Icons.Filled.KeyboardArrowDown,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(ButtonDefaults.IconSize)
+                    )
+                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                    Text(
+                        text = "归还",
+                        color = Color.White,
+                        fontFamily = HarmonyOS_Sans_SC,
+                        fontWeight = FontWeight.Normal
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                if (isButtonClicked) {
+                    if (!isMemberInDatabase) {
                         Text(
-                            text = "归还",
-                            color = Color.White,
+                            text = "数据库中无相关营员信息，请重试！",
+                            fontSize = 16.sp,
                             fontFamily = HarmonyOS_Sans_SC,
                             fontWeight = FontWeight.Normal
                         )
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    if (isButtonClicked) {
-                        if (!isGoodsInDatabase) {
-                            Text(
-                                text = "数据库中无相关物资信息，请重试！",
-                                fontSize = 16.sp,
-                                fontFamily = HarmonyOS_Sans_SC,
-                                fontWeight = FontWeight.Normal
-                            )
-                            if (!isCleared) {
-                                userInputGoodsID = ""
-                                userInputMemberID = ""
-                                isCleared = true
-                            }
-                        }
-                        if (!isMemberInDatabase) {
-                            Text(
-                                text = "数据库中无相关营员信息，请重试！",
-                                fontSize = 16.sp,
-                                fontFamily = HarmonyOS_Sans_SC,
-                                fontWeight = FontWeight.Normal
-                            )
-                            if (!isCleared) {
-                                userInputGoodsID = ""
-                                userInputMemberID = ""
-                                isCleared = true
-                            }
-                        }
-                        if (isMemberInDatabase && isGoodsInDatabase) {
-                            if (!isBorrowedByCurrentGroup) {
-                                Text(
-                                    text = "尝试归还当前物资的营员不属于之前借出该物资的小组，归还失败！",
-                                    fontSize = 16.sp,
-                                    fontFamily = HarmonyOS_Sans_SC,
-                                    fontWeight = FontWeight.Normal
-                                )
-                                if (!isCleared) {
-                                    userInputGoodsID = ""
-                                    userInputMemberID = ""
-                                    isCleared = true
-                                }
-                            } else {
-                                if (isGoodsAvailable == 0) {
-                                    Text(
-                                        text = "物资归还成功！",
-                                        fontSize = 16.sp,
-                                        fontFamily = HarmonyOS_Sans_SC,
-                                        fontWeight = FontWeight.Normal
-                                    )
-                                } else if (isGoodsRemoved == 1) {
-                                    Text(
-                                        text = "物资已从仓库移除，归还失败！",
-                                        fontSize = 16.sp,
-                                        fontFamily = HarmonyOS_Sans_SC,
-                                        fontWeight = FontWeight.Normal
-                                    )
-                                } else if (isGoodsAvailable == 1) {
-                                    Text(
-                                        text = "物资已被归还，归还失败！",
-                                        fontSize = 16.sp,
-                                        fontFamily = HarmonyOS_Sans_SC,
-                                        fontWeight = FontWeight.Normal
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    if (isGoodsInDatabase) {
+                    } else {
+                        val succeedTrials = goodsCount - failedTrials
                         Text(
-                            text = "最近操作",
-                            fontSize = 24.sp,
+                            text = "操作成功，其中$succeedTrials" + "件物资归还成功，$failedTrials" + "件物资归还失败！",
+                            fontSize = 16.sp,
                             fontFamily = HarmonyOS_Sans_SC,
                             fontWeight = FontWeight.Normal
                         )
@@ -298,9 +237,9 @@ fun returnContents() {
                             val stmt = conn.createStatement()
                             stmt.execute("use $currentDatabase")
                             val rs = stmt.executeQuery(
-                                "select transactionTime, transactionType, memberID, goodsID, goodsName\n" + "from transactions\n" + "         join rm_goods using (goodsID)\n" + "where goodsID = '$userInputGoodsID'\n" + "order by transactionTime desc\n" + "limit 3"
+                                "select transactionTime, transactionType, memberID, goodsID, goodsName\n" + "from transactions\n" + "         join rm_goods using (goodsID)\n" + "where goodsID = '$lastGoodsID'\n" + "order by transactionTime desc\n" + "limit 3"
                             )
-                            var counter: Int = 0
+                            var counter = 0
                             while (rs.next()) {
                                 commonMessageCard(
                                     rs.getInt("transactionType"),

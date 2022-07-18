@@ -19,6 +19,7 @@ fun mainContents() {
     var isReturnVisible by remember { mutableStateOf(false) }
     var isSearchVisible by remember { mutableStateOf(false) }
     var isSettingsVisible by remember { mutableStateOf(false) }
+    var isAddVisible by remember { mutableStateOf(false) }
 
     Row {
         Row {
@@ -26,12 +27,13 @@ fun mainContents() {
             Column(
                 modifier = Modifier.fillMaxHeight().width(64.dp),
             ) {
-                Spacer(modifier = Modifier.height(80.dp))
+                Spacer(modifier = Modifier.height(40.dp))
                 Box(
                     modifier = Modifier.fillMaxWidth().height(64.dp).clip(RoundedCornerShape(10.dp))
                         .background(color = blue)
                         .clickable {
                             isHomePageVisible = true
+                            isAddVisible = false
                             isBorrowVisible = false
                             isReturnVisible = false
                             isSearchVisible = false
@@ -52,6 +54,28 @@ fun mainContents() {
                         .background(color = blue)
                         .clickable {
                             isHomePageVisible = false
+                            isAddVisible = true
+                            isBorrowVisible = false
+                            isReturnVisible = false
+                            isSearchVisible = false
+                            isSettingsVisible = false
+                        }
+                        .padding(16.dp, 16.dp)
+                ) {
+                    Icon(
+                        Icons.Filled.Add,
+                        contentDescription = "Add",
+                        tint = Color.White,
+                        modifier = Modifier.size(48.dp, 48.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Box(
+                    modifier = Modifier.fillMaxWidth().height(64.dp).clip(RoundedCornerShape(10.dp))
+                        .background(color = blue)
+                        .clickable {
+                            isHomePageVisible = false
+                            isAddVisible = false
                             isBorrowVisible = true
                             isReturnVisible = false
                             isSearchVisible = false
@@ -72,6 +96,7 @@ fun mainContents() {
                         .background(color = blue)
                         .clickable {
                             isHomePageVisible = false
+                            isAddVisible = false
                             isBorrowVisible = false
                             isReturnVisible = true
                             isSearchVisible = false
@@ -92,6 +117,7 @@ fun mainContents() {
                         .background(color = blue)
                         .clickable {
                             isHomePageVisible = false
+                            isAddVisible = false
                             isBorrowVisible = false
                             isReturnVisible = false
                             isSearchVisible = true
@@ -112,6 +138,7 @@ fun mainContents() {
                         .background(color = blue)
                         .clickable {
                             isHomePageVisible = false
+                            isAddVisible = false
                             isBorrowVisible = false
                             isReturnVisible = false
                             isSearchVisible = false
@@ -130,6 +157,8 @@ fun mainContents() {
         }
         if (isHomePageVisible)
             homePageContents()
+        if (isAddVisible)
+            addContents()
         if (isBorrowVisible)
             borrowContents()
         if (isReturnVisible)
