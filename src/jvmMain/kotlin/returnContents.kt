@@ -6,6 +6,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -38,7 +39,7 @@ fun returnContents() {
                         text = "物资归还", fontSize = 32.sp, fontFamily = HarmonyOS_Sans_SC, fontWeight = FontWeight.Medium
                     )
                     Spacer(modifier = Modifier.height(16.dp))
-                    Row {
+                    Row (verticalAlignment = Alignment.CenterVertically){
                         Column(modifier = Modifier.width(432.dp)) {
                             Text(
                                 text = "物资编号",
@@ -88,7 +89,7 @@ fun returnContents() {
                                 value = userInputMemberID,
                                 onValueChange = { userInputMemberID = it },
                                 label = null,
-                                modifier = Modifier.fillMaxWidth().height(89.dp),
+                                modifier = Modifier.fillMaxWidth(),
                                 colors = TextFieldDefaults.textFieldColors(
                                     backgroundColor = lightBlue,
                                     cursorColor = Color.Black,

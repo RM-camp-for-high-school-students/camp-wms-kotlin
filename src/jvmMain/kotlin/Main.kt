@@ -19,7 +19,7 @@ var databaseUrl = "jdbc:mysql://rm-wz95tw2q29jk1973ilo.mysql.rds.aliyuncs.com:33
 var databaseUserName = ""
 var databasePassword = ""
 
-var currentDatabase = "test"
+var currentDatabase = "2022Summer"
 
 var isDatabaseConnected = false
 
