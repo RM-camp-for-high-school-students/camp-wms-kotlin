@@ -91,7 +91,7 @@ fun searchContents() {
                                     6 -> {
                                         isInputValid = try {
                                             val rs =
-                                                stmt.executeQuery("select goodsName from rm_goods where goodsID_05 = '$userInputContents' limit 1 and isRemoved = 0")
+                                                stmt.executeQuery("select goodsName from rm_goods where goodsID_05 = '$userInputContents' and isRemoved = 0 limit 1")
                                             rs.next()
                                             rs.getString("goodsName")
                                             true
