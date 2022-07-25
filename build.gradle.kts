@@ -42,6 +42,9 @@ compose.desktop {
             windows{
                 iconFile.set(project.file("robomaster_logo_black.ico"))
             }
+            linux{
+                iconFile.set(project.file("robomaster_logo_black.png"))
+            }
             modules("java.compiler", "java.instrument" , "java.sql", "jdk.unsupported", "java.naming")
         }
     }
