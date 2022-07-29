@@ -78,9 +78,9 @@ fun addContents() {
                             userInputGoodsIDs = ""
 
                             Class.forName("com.mysql.cj.jdbc.Driver")
-                            val conn = DriverManager.getConnection(databaseUrl, databaseUserName, databasePassword)
-                            val stmt = conn.createStatement()
-                            stmt.execute("use $currentDatabase")
+                            val connection = DriverManager.getConnection(databaseUrl, databaseUserName, databasePassword)
+                            val statement = connection.createStatement()
+                            statement.execute("use $currentDatabase")
 
                             if (goodsIDs.isNotEmpty()) {
                                 goodsCount = goodsIDs.count()
@@ -88,11 +88,11 @@ fun addContents() {
                                     if (goodsID.length == 10) {
                                         val goodsID05 = goodsID.substring(0..5)
                                         val isGoodsIDValid = try {
-                                            val rs = stmt.executeQuery(
+                                            val resultSet = statement.executeQuery(
                                                 "select goodsID_05 from bom where goodsID_05 = '$goodsID05'"
                                             )
-                                            rs.next()
-                                            rs.getString("goodsID_05")
+                                            resultSet.next()
+                                            resultSet.getString("goodsID_05")
                                             true
                                         } catch (e: Exception) {
                                             false
@@ -104,11 +104,11 @@ fun addContents() {
                                         }
 
                                         val isGoodsInDatabase = try {
-                                            val rs = stmt.executeQuery(
+                                            val resultSet = statement.executeQuery(
                                                 "select * from rm_goods where goodsID = '$goodsID'"
                                             )
-                                            rs.next()
-                                            rs.getString("goodsName")
+                                            resultSet.next()
+                                            resultSet.getString("goodsName")
                                             true
                                         } catch (e: Exception) {
                                             false
@@ -118,13 +118,13 @@ fun addContents() {
                                             userInputGoodsIDs += goodsID + "\n"
                                             continue
                                         }
-                                        val rs = stmt.executeQuery(
+                                        val resultSet = statement.executeQuery(
                                             "select * from bom where goodsID_05 = '$goodsID05'"
                                         )
-                                        rs.next()
-                                        val goodsName = rs.getString("goodsName")
-                                        val goodsType = rs.getString("goodsType")
-                                        stmt.execute(
+                                        resultSet.next()
+                                        val goodsName = resultSet.getString("goodsName")
+                                        val goodsType = resultSet.getString("goodsType")
+                                        statement.execute(
                                             "insert rm_goods\n" +
                                                     "(goodsID, goodsID_05, goodsType, goodsName, isRemoved, isAvailable)\n" +
                                                     "value\n" +
@@ -140,7 +140,7 @@ fun addContents() {
                             } else {
                                 goodsCount = 0
                             }
-                            conn.close()
+                            connection.close()
                         }, contentPadding = PaddingValues(
                             start = 20.dp, top = 12.dp, end = 20.dp, bottom = 12.dp
                         ), colors = ButtonDefaults.buttonColors(

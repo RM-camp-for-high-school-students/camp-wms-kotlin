@@ -134,18 +134,18 @@ fun returnContents() {
                             }
 
                             Class.forName("com.mysql.cj.jdbc.Driver")
-                            val conn = DriverManager.getConnection(databaseUrl, databaseUserName, databasePassword)
-                            val stmt = conn.createStatement()
-                            stmt.execute("use $currentDatabase")
+                            val connection = DriverManager.getConnection(databaseUrl, databaseUserName, databasePassword)
+                            val statement = connection.createStatement()
+                            statement.execute("use $currentDatabase")
                             if (userInputMemberID.isEmpty()) {
                                 userInputMemberID = "SP000001"
                             }
                             isMemberInDatabase = try {
-                                val rs = stmt.executeQuery(
+                                val resultSet = statement.executeQuery(
                                     "select *\n" + "from group_members\n" + "where memberID = '$userInputMemberID';"
                                 )
-                                rs.next()
-                                rs.getString("memberID")
+                                resultSet.next()
+                                resultSet.getString("memberID")
                                 true
                             } catch (e: Exception) {
                                 false
@@ -156,11 +156,11 @@ fun returnContents() {
                                         var isGoodsRemoved: Int
                                         var isGoodsAvailable: Int
                                         val isGoodsInDatabase = try {
-                                            val rs = stmt.executeQuery(
+                                            val resultSet = statement.executeQuery(
                                                 "select *\n" + "from rm_goods\n" + "where goodsID = '$goodsID';"
                                             )
-                                            rs.next()
-                                            rs.getString("goodsName")
+                                            resultSet.next()
+                                            resultSet.getString("goodsName")
                                             true
                                         } catch (e: Exception) {
                                             false
@@ -171,7 +171,7 @@ fun returnContents() {
                                             continue
                                         }
                                         try {
-                                            val rs = stmt.executeQuery(
+                                            val rs = statement.executeQuery(
                                                 "select *\n" + "from rm_goods\n" + "where goodsID = '$goodsID'"
                                             )
                                             rs.next()
@@ -183,10 +183,10 @@ fun returnContents() {
                                             continue
                                         }
                                         if (isGoodsRemoved == 0 && isGoodsAvailable == 0) {
-                                            stmt.execute(
+                                            statement.execute(
                                                 "insert transactions\n" + "(memberID, goodsID, transactionType)\n" + "value\n" + "('$userInputMemberID','$goodsID',0);"
                                             )
-                                            stmt.execute(
+                                            statement.execute(
                                                 "update rm_goods\n" + "set isAvailable = 1\n" + "where goodsID = '$goodsID';"
                                             )
                                         } else {
@@ -196,7 +196,7 @@ fun returnContents() {
                                         }
                                     }
                                 }
-                                conn.close()
+                                connection.close()
                             }
                         } else {
                             goodsCount = 0
@@ -241,25 +241,25 @@ fun returnContents() {
                         Spacer(modifier = Modifier.height(16.dp))
                         Row {
                             Class.forName("com.mysql.cj.jdbc.Driver")
-                            val conn = DriverManager.getConnection(databaseUrl, databaseUserName, databasePassword)
-                            val stmt = conn.createStatement()
-                            stmt.execute("use $currentDatabase")
-                            val rs = stmt.executeQuery(
+                            val connection = DriverManager.getConnection(databaseUrl, databaseUserName, databasePassword)
+                            val statement = connection.createStatement()
+                            statement.execute("use $currentDatabase")
+                            val resultSet = statement.executeQuery(
                                 "select transactionTime, transactionType, memberID, goodsID, goodsName\n" + "from transactions\n" + "         join rm_goods using (goodsID)\n" + "where goodsID = '$lastGoodsID'\n" + "order by transactionTime desc\n" + "limit 3"
                             )
                             var counter = 0
-                            while (rs.next()) {
+                            while (resultSet.next()) {
                                 commonMessageCard(
-                                    rs.getInt("transactionType"),
-                                    rs.getString("transactionTime"),
-                                    rs.getString("memberID"),
-                                    rs.getString("goodsID"),
-                                    rs.getString("goodsName")
+                                    resultSet.getInt("transactionType"),
+                                    resultSet.getString("transactionTime"),
+                                    resultSet.getString("memberID"),
+                                    resultSet.getString("goodsID"),
+                                    resultSet.getString("goodsName")
                                 )
                                 Spacer(modifier = Modifier.width(16.dp))
                                 counter++
                             }
-                            conn.close()
+                            connection.close()
                             if (counter == 0) {
                                 Text(
                                     text = "未查询到该物资的操作记录！",

@@ -72,17 +72,17 @@ fun searchContents() {
                                 isButtonClicked = true
 
                                 Class.forName("com.mysql.cj.jdbc.Driver")
-                                val conn = DriverManager.getConnection(databaseUrl, databaseUserName, databasePassword)
-                                val stmt = conn.createStatement()
-                                stmt.execute("use $currentDatabase")
+                                val connection = DriverManager.getConnection(databaseUrl, databaseUserName, databasePassword)
+                                val statement = connection.createStatement()
+                                statement.execute("use $currentDatabase")
 
                                 when (userInputContents.length) {
                                     8 -> {
                                         isInputValid = try {
-                                            val rs =
-                                                stmt.executeQuery("select memberID from group_members where memberID = '$userInputContents'")
-                                            rs.next()
-                                            rs.getString("memberID")
+                                            val resultSet =
+                                                statement.executeQuery("select memberID from group_members where memberID = '$userInputContents'")
+                                            resultSet.next()
+                                            resultSet.getString("memberID")
                                             true
                                         } catch (e: Exception) {
                                             false
@@ -90,10 +90,10 @@ fun searchContents() {
                                     }
                                     6 -> {
                                         isInputValid = try {
-                                            val rs =
-                                                stmt.executeQuery("select goodsName from rm_goods where goodsID_05 = '$userInputContents' and isRemoved = 0 limit 1")
-                                            rs.next()
-                                            rs.getString("goodsName")
+                                            val resultSet =
+                                                statement.executeQuery("select goodsName from rm_goods where goodsID_05 = '$userInputContents' and isRemoved = 0 limit 1")
+                                            resultSet.next()
+                                            resultSet.getString("goodsName")
                                             true
                                         } catch (e: Exception) {
                                             false
@@ -101,10 +101,10 @@ fun searchContents() {
                                     }
                                     10 -> {
                                         isInputValid = try {
-                                            val rs =
-                                                stmt.executeQuery("select goodsName from rm_goods where goodsID = '$userInputContents' and isRemoved = 0")
-                                            rs.next()
-                                            rs.getString("goodsName")
+                                            val resultSet =
+                                                statement.executeQuery("select goodsName from rm_goods where goodsID = '$userInputContents' and isRemoved = 0")
+                                            resultSet.next()
+                                            resultSet.getString("goodsName")
                                             true
                                         } catch (e: Exception) {
                                             false
@@ -114,7 +114,7 @@ fun searchContents() {
                                         isInputValid = false
                                     }
                                 }
-                                conn.close()
+                                connection.close()
                             },
                             contentPadding = PaddingValues(
                                 start = 20.dp, top = 12.dp, end = 20.dp, bottom = 12.dp
@@ -151,22 +151,22 @@ fun searchContents() {
                             when (userInputContents.length) {
                                 8 -> {
                                     Class.forName("com.mysql.cj.jdbc.Driver")
-                                    val conn =
+                                    val connection =
                                         DriverManager.getConnection(databaseUrl, databaseUserName, databasePassword)
-                                    val stmt = conn.createStatement()
-                                    stmt.execute("use $currentDatabase")
+                                    val statement = connection.createStatement()
+                                    statement.execute("use $currentDatabase")
 
-                                    var rs =
-                                        stmt.executeQuery("select groupID from group_members where memberID = '$userInputContents'")
-                                    rs.next()
-                                    val specificGroupID = rs.getString("groupID")
+                                    var resultSet =
+                                        statement.executeQuery("select groupID from group_members where memberID = '$userInputContents'")
+                                    resultSet.next()
+                                    val specificGroupID = resultSet.getString("groupID")
 
-                                    rs =
-                                        stmt.executeQuery("select memberID from group_members where groupID = '$specificGroupID'")
+                                    resultSet =
+                                        statement.executeQuery("select memberID from group_members where groupID = '$specificGroupID'")
                                     val specificMemberIDs: ArrayList<String> = ArrayList()
                                     specificMemberIDs.add(userInputContents)
-                                    while (rs.next()) {
-                                        val currentMemberID = rs.getString("memberID")
+                                    while (resultSet.next()) {
+                                        val currentMemberID = resultSet.getString("memberID")
                                         if (currentMemberID != userInputContents) {
                                             specificMemberIDs.add(currentMemberID)
                                         }
@@ -204,35 +204,35 @@ fun searchContents() {
                                                 val borrowedGoodsNotInWarehouse: ArrayList<Pair<String, String>> =
                                                     ArrayList()
                                                 val borrowedGoods: ArrayList<Pair<String, String>> = ArrayList()
-                                                rs =
-                                                    stmt.executeQuery("select goodsID,transactionTime from transactions where memberID = '$specificMemberID' and transactionType = 1 order by transactionTime desc")
-                                                while (rs.next()) {
+                                                resultSet =
+                                                    statement.executeQuery("select goodsID,transactionTime from transactions where memberID = '$specificMemberID' and transactionType = 1 order by transactionTime desc")
+                                                while (resultSet.next()) {
                                                     allBorrowedGoods.add(
                                                         Pair(
-                                                            rs.getString("goodsID"),
-                                                            rs.getString("transactionTime")
+                                                            resultSet.getString("goodsID"),
+                                                            resultSet.getString("transactionTime")
                                                         )
                                                     )
                                                 }
                                                 for (currentGoods in allBorrowedGoods) {
                                                     val currentGoodsID = currentGoods.first
-                                                    rs =
-                                                        stmt.executeQuery("select isAvailable from rm_goods where goodsID = '$currentGoodsID'")
-                                                    rs.next()
-                                                    if (rs.getInt("isAvailable") == 0) {
+                                                    resultSet =
+                                                        statement.executeQuery("select isAvailable from rm_goods where goodsID = '$currentGoodsID'")
+                                                    resultSet.next()
+                                                    if (resultSet.getInt("isAvailable") == 0) {
                                                         borrowedGoodsNotInWarehouse.add(currentGoods)
                                                     }
                                                 }
                                                 allBorrowedGoods.clear()
                                                 for (currentGoods in borrowedGoodsNotInWarehouse) {
                                                     val currentGoodsID = currentGoods.first
-                                                    rs = stmt.executeQuery(
+                                                    resultSet = statement.executeQuery(
                                                         "select memberID from transactions where goodsID = '$currentGoodsID' and transactionType = 1\n" +
                                                                 "order by transactionTime desc\n" +
                                                                 "limit 1"
                                                     )
-                                                    rs.next()
-                                                    if (rs.getString("memberID") == specificMemberID) {
+                                                    resultSet.next()
+                                                    if (resultSet.getString("memberID") == specificMemberID) {
                                                         borrowedGoods.add(currentGoods)
                                                     }
                                                 }
@@ -241,10 +241,10 @@ fun searchContents() {
                                                 for (item in borrowedGoods) {
                                                     val currentGoodsID = item.first
                                                     if (!goodsIDSet.contains(currentGoodsID)) {
-                                                        rs =
-                                                            stmt.executeQuery("select goodsName from rm_goods where goodsID = '$currentGoodsID'")
-                                                        rs.next()
-                                                        val currentGoodsName = rs.getString("goodsName")
+                                                        resultSet =
+                                                            statement.executeQuery("select goodsName from rm_goods where goodsID = '$currentGoodsID'")
+                                                        resultSet.next()
+                                                        val currentGoodsName = resultSet.getString("goodsName")
                                                         Row {
                                                             Text(
                                                                 text = item.second,
@@ -282,26 +282,26 @@ fun searchContents() {
                                             Spacer(modifier = Modifier.height(16.dp))
                                         }
                                     }
-                                    conn.close()
+                                    connection.close()
                                 }
                                 6 -> {
                                     Class.forName("com.mysql.cj.jdbc.Driver")
-                                    val conn =
+                                    val connection =
                                         DriverManager.getConnection(databaseUrl, databaseUserName, databasePassword)
-                                    val stmt = conn.createStatement()
-                                    stmt.execute("use $currentDatabase")
-                                    var rs =
-                                        stmt.executeQuery("select count(*) from rm_goods where goodsID_05 = '$userInputContents' and isRemoved = 0")
-                                    rs.next()
-                                    val goodsCount = rs.getInt("count(*)")
-                                    rs =
-                                        stmt.executeQuery("select count(*) from rm_goods where goodsID_05 = '$userInputContents' and isRemoved = 0 and isAvailable = 0")
-                                    rs.next()
-                                    val borrowedCount = rs.getInt("count(*)")
-                                    rs =
-                                        stmt.executeQuery("select goodsName from rm_goods where goodsID_05 = '$userInputContents' limit 1")
-                                    rs.next()
-                                    val goodsName = rs.getString("goodsName")
+                                    val statement = connection.createStatement()
+                                    statement.execute("use $currentDatabase")
+                                    var resultSet =
+                                        statement.executeQuery("select count(*) from rm_goods where goodsID_05 = '$userInputContents' and isRemoved = 0")
+                                    resultSet.next()
+                                    val goodsCount = resultSet.getInt("count(*)")
+                                    resultSet =
+                                        statement.executeQuery("select count(*) from rm_goods where goodsID_05 = '$userInputContents' and isRemoved = 0 and isAvailable = 0")
+                                    resultSet.next()
+                                    val borrowedCount = resultSet.getInt("count(*)")
+                                    resultSet =
+                                        statement.executeQuery("select goodsName from rm_goods where goodsID_05 = '$userInputContents' limit 1")
+                                    resultSet.next()
+                                    val goodsName = resultSet.getString("goodsName")
                                     Text(
                                         text = "$userInputContents $goodsName" + "共有$goodsCount" + "件，其中$borrowedCount" + "件已借出。",
                                         fontSize = 16.sp,
@@ -311,18 +311,18 @@ fun searchContents() {
                                     Spacer(modifier = Modifier.height(16.dp))
                                     if (borrowedCount > 0) {
                                         val borrowedGoodsIDs: ArrayList<String> = ArrayList()
-                                        rs =
-                                            stmt.executeQuery("select goodsID from rm_goods where goodsID_05 = '$userInputContents' and isRemoved = 0 and isAvailable = 0")
-                                        while (rs.next()) {
-                                            borrowedGoodsIDs.add(rs.getString("goodsID"))
+                                        resultSet =
+                                            statement.executeQuery("select goodsID from rm_goods where goodsID_05 = '$userInputContents' and isRemoved = 0 and isAvailable = 0")
+                                        while (resultSet.next()) {
+                                            borrowedGoodsIDs.add(resultSet.getString("goodsID"))
                                         }
                                         Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                                             for (currentGoodsID in borrowedGoodsIDs) {
-                                                rs =
-                                                    stmt.executeQuery("select memberID, transactionTime from transactions where goodsID = '$currentGoodsID' order by transactionTime desc limit 1")
-                                                rs.next()
-                                                val currentMemberID = rs.getString("memberID")
-                                                val transactionTime = rs.getString("transactionTime")
+                                                resultSet =
+                                                    statement.executeQuery("select memberID, transactionTime from transactions where goodsID = '$currentGoodsID' order by transactionTime desc limit 1")
+                                                resultSet.next()
+                                                val currentMemberID = resultSet.getString("memberID")
+                                                val transactionTime = resultSet.getString("transactionTime")
                                                 Text(
                                                     text = currentMemberID + "于$transactionTime" + "借出了$currentGoodsID " + goodsName + "。",
                                                     fontFamily = HarmonyOS_Sans_SC,
@@ -333,19 +333,19 @@ fun searchContents() {
                                             }
                                         }
                                     }
-                                    conn.close()
+                                    connection.close()
                                 }
                                 10 -> {
                                     Class.forName("com.mysql.cj.jdbc.Driver")
-                                    val conn =
+                                    val connection =
                                         DriverManager.getConnection(databaseUrl, databaseUserName, databasePassword)
-                                    val stmt = conn.createStatement()
-                                    stmt.execute("use $currentDatabase")
-                                    var rs =
-                                        stmt.executeQuery("select * from rm_goods where goodsID = '$userInputContents'")
-                                    rs.next()
-                                    val goodsName = rs.getString("goodsName")
-                                    val isCurrentGoodsAvailable = rs.getInt("isAvailable")
+                                    val statement = connection.createStatement()
+                                    statement.execute("use $currentDatabase")
+                                    var resultSet =
+                                        statement.executeQuery("select * from rm_goods where goodsID = '$userInputContents'")
+                                    resultSet.next()
+                                    val goodsName = resultSet.getString("goodsName")
+                                    val isCurrentGoodsAvailable = resultSet.getInt("isAvailable")
                                     if (isCurrentGoodsAvailable == 1) {
                                         Text(
                                             text = "$userInputContents $goodsName" + "当前在仓库中可供借用。",
@@ -354,28 +354,28 @@ fun searchContents() {
                                             fontWeight = FontWeight.Normal
                                         )
                                     } else {
-                                        rs =
-                                            stmt.executeQuery("select * from transactions where goodsID = '$userInputContents' order by transactionTime desc limit 1")
-                                        rs.next()
-                                        val transactionTime = rs.getString("transactionTime")
-                                        val memberID = rs.getString("memberID")
+                                        resultSet =
+                                            statement.executeQuery("select * from transactions where goodsID = '$userInputContents' order by transactionTime desc limit 1")
+                                        resultSet.next()
+                                        val transactionTime = resultSet.getString("transactionTime")
+                                        val memberID = resultSet.getString("memberID")
                                         Text(
                                             text = "$userInputContents $goodsName" + "已于$transactionTime" + "由$memberID" + "借出。"
                                         )
                                     }
                                     Spacer(modifier = Modifier.height(16.dp))
                                     Row {
-                                        rs = stmt.executeQuery(
+                                        resultSet = statement.executeQuery(
                                             "select transactionTime, transactionType, memberID, goodsID, goodsName\n" + "from transactions\n" + "         join rm_goods using (goodsID)\n" + "where goodsID = '$userInputContents'\n" + "order by transactionTime desc\n" + "limit 3"
                                         )
                                         var counter = 0
-                                        while (rs.next()) {
+                                        while (resultSet.next()) {
                                             commonMessageCard(
-                                                rs.getInt("transactionType"),
-                                                rs.getString("transactionTime"),
-                                                rs.getString("memberID"),
-                                                rs.getString("goodsID"),
-                                                rs.getString("goodsName")
+                                                resultSet.getInt("transactionType"),
+                                                resultSet.getString("transactionTime"),
+                                                resultSet.getString("memberID"),
+                                                resultSet.getString("goodsID"),
+                                                resultSet.getString("goodsName")
                                             )
                                             Spacer(modifier = Modifier.width(16.dp))
                                             counter++
@@ -389,7 +389,7 @@ fun searchContents() {
                                             )
                                         }
                                     }
-                                    conn.close()
+                                    connection.close()
                                 }
                             }
                         }

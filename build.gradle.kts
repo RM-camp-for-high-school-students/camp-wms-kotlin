@@ -6,7 +6,7 @@ plugins {
     id("org.jetbrains.compose")
 }
 
-group = "com.robomaster.goods"
+group = "com.robomaster.wms"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -38,9 +38,12 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "疆来计划 仓库管理系统"
-            packageVersion = "1.1.1"
+            packageVersion = "1.2.0"
             windows{
                 iconFile.set(project.file("robomaster_logo_black.ico"))
+            }
+            linux{
+                iconFile.set(project.file("robomaster_logo_black.png"))
             }
             modules("java.compiler", "java.instrument" , "java.sql", "jdk.unsupported", "java.naming")
         }
