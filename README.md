@@ -8,9 +8,9 @@ It is based on the Compose Multiplatform Framework developed by JetBrains.
 ### Installation
 Robomaster-WMS is now released to two platforms: Windows and Linux.
 
-For Windows users, please download the latest version from [here](https://github.com/RM-camp-for-high-school-students/robomaster-wms/releases/download/release/Robomaster-WMS-v1.2.0-Win.zip).
+For Windows users, please download the latest version from [here](https://github.com/RM-camp-for-high-school-students/robomaster-wms/releases/download/releases/Robomaster-WMS-v1.2.0-Windows.zip).
 
-For Linux users, please download the latest version from [here](https://github.com/RM-camp-for-high-school-students/robomaster-wms/releases/download/release/Robomaster-WMS-v1.2.0-Linux.tar.gz).
+For Linux users, please download the latest version from [here](https://github.com/RM-camp-for-high-school-students/robomaster-wms/releases/download/releases/Robomaster-WMS-v1.2.0-Linux.tar.gz).
 
 After downloading, please extract the downloaded file to the desired location.
 
