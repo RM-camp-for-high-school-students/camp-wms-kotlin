@@ -37,7 +37,7 @@ compose.desktop {
         mainClass = "MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "疆来计划 仓库管理系统"
+            packageName = "robomaster-wms"
             packageVersion = "1.2.0"
             windows{
                 iconFile.set(project.file("robomaster_logo_black.ico"))
