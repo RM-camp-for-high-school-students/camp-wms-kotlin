@@ -28,7 +28,7 @@ fun returnContents() {
     var goodsCount = 0
     var failedTrials = 0
 
-    isDatabaseAvailable = testDatabaseConnection(databaseUrl, databaseUserName, databasePassword)
+    isDatabaseAvailable = testDatabaseConnection(databaseUrl, databaseUserName, databasePassword, currentDatabase)
 
     if (isDatabaseAvailable) {
         MaterialTheme {

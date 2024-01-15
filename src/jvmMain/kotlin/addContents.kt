@@ -22,7 +22,7 @@ fun addContents() {
     var failedTrials = 0
     var goodsCount = 0
 
-    isDatabaseAvailable = testDatabaseConnection(databaseUrl, databaseUserName, databasePassword)
+    isDatabaseAvailable = testDatabaseConnection(databaseUrl, databaseUserName, databasePassword, currentDatabase)
     if (isDatabaseAvailable) {
         MaterialTheme {
             Spacer(modifier = Modifier.width(32.dp))

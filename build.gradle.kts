@@ -6,8 +6,8 @@ plugins {
     id("org.jetbrains.compose")
 }
 
-group = "com.robomaster.wms"
-version = "1.0-SNAPSHOT"
+group = "com.camp.wms"
+version = "2.0"
 
 repositories {
     google()
@@ -37,13 +37,13 @@ compose.desktop {
         mainClass = "MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "robomaster-wms"
-            packageVersion = "1.2.0"
+            packageName = "camp-wms"
+            packageVersion = "2.0.0"
             windows{
-                iconFile.set(project.file("robomaster_logo_black.ico"))
+                iconFile.set(project.file("innox_logo.ico"))
             }
             linux{
-                iconFile.set(project.file("robomaster_logo_black.png"))
+                iconFile.set(project.file("innox_llogo.png"))
             }
             modules("java.compiler", "java.instrument" , "java.sql", "jdk.unsupported", "java.naming")
         }

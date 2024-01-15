@@ -15,11 +15,11 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 
-var databaseUrl = "jdbc:mysql://rm-wz95tw2q29jk1973ilo.mysql.rds.aliyuncs.com:3306"
+var databaseUrl = ""
 var databaseUserName = ""
 var databasePassword = ""
 
-var currentDatabase = "2022Summer"
+var currentDatabase = ""
 
 var isDatabaseConnected = false
 
@@ -31,11 +31,11 @@ fun main() = application {
     windowState.size = DpSize(1024.dp, 768.dp)
     Window(
         onCloseRequest = {},
-        icon = painterResource("robomaster_logo_black.svg"),
+        icon = painterResource("innox_logo.svg"),
         state = windowState,
         undecorated = true,
         resizable = false,
-        title = "疆来计划 仓库管理系统"
+        title = "camp-wms"
     ) {
         //顶栏右侧最小化及关闭按钮
         WindowDraggableArea {

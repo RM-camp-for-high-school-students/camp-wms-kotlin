@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.sp
 fun settingsContents() {
     var userInputUserName by remember { mutableStateOf("") }
     var userInputPassword by remember { mutableStateOf("") }
+    var userInputUrl by remember { mutableStateOf("") }
+    var userInputCurrentDatabase by remember { mutableStateOf("") }
 
     MaterialTheme {
         Spacer(modifier = Modifier.width(32.dp))
@@ -30,48 +32,78 @@ fun settingsContents() {
                     text = "设置", fontSize = 32.sp, fontFamily = HarmonyOS_Sans_SC, fontWeight = FontWeight.Medium
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "数据库连接设置",
-                    fontSize = 24.sp,
-                    fontFamily = HarmonyOS_Sans_SC,
-                    fontWeight = FontWeight.Normal
-                )
-//                Spacer(modifier = Modifier.height(16.dp))
-//                Column {
-//                    Text(
-//                        text = "数据库地址",
-//                        modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
-//                        textAlign = TextAlign.Start,
-//                        color = blue,
-//                        fontFamily = HarmonyOS_Sans_SC,
-//                        fontWeight = FontWeight.Normal
-//                    )
-//                    TextField(
-//                        value = userInputUrl,
-//                        onValueChange = { userInputUrl = it },
-//                        label = null,
-//                        modifier = Modifier.fillMaxWidth(),
-//                        colors = TextFieldDefaults.textFieldColors(
-//                            backgroundColor = lightBlue,
-//                            cursorColor = Color.Black,
-//                            disabledLabelColor = lightBlue,
-//                            focusedIndicatorColor = Color.Transparent,
-//                            unfocusedIndicatorColor = Color.Transparent
-//                        ),
-//                        shape = RoundedCornerShape(8.dp),
-//                        singleLine = true,
-//                        trailingIcon = {
-//                            if (userInputUrl.isNotEmpty()) {
-//                                IconButton(onClick = { userInputUrl = "" }) {
-//                                    Icon(
-//                                        imageVector = Icons.Outlined.Close, contentDescription = null
-//                                    )
-//                                }
-//                            }
-//                        },
-//                        textStyle = TextStyle(fontFamily = HarmonyOS_Sans_SC, fontWeight = FontWeight.Normal)
-//                    )
-//                }
+                Column {
+                    Text(
+                        text = "URL",
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
+                        textAlign = TextAlign.Start,
+                        color = blue,
+                        fontFamily = HarmonyOS_Sans_SC,
+                        fontWeight = FontWeight.Normal
+                    )
+                    TextField(
+                        value = userInputUrl,
+                        onValueChange = { userInputUrl = it },
+                        label = null,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = TextFieldDefaults.textFieldColors(
+                            backgroundColor = lightBlue,
+                            cursorColor = Color.Black,
+                            disabledLabelColor = lightBlue,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        singleLine = true,
+                        trailingIcon = {
+                            if (userInputUrl.isNotEmpty()) {
+                                IconButton(onClick = { userInputUrl = "" }) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Close, contentDescription = null
+                                    )
+                                }
+                            }
+                        },
+                        textStyle = TextStyle(fontFamily = HarmonyOS_Sans_SC, fontWeight = FontWeight.Normal)
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Column {
+                    Text(
+                        text = "当前数据库",
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
+                        textAlign = TextAlign.Start,
+                        color = blue,
+                        fontFamily = HarmonyOS_Sans_SC,
+                        fontWeight = FontWeight.Normal
+                    )
+                    TextField(
+                        value = userInputCurrentDatabase,
+                        onValueChange = { userInputCurrentDatabase = it },
+                        label = null,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = TextFieldDefaults.textFieldColors(
+                            backgroundColor = lightBlue,
+                            cursorColor = Color.Black,
+                            disabledLabelColor = lightBlue,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        singleLine = true,
+                        trailingIcon = {
+                            if (userInputCurrentDatabase.isNotEmpty()) {
+                                IconButton(onClick = { userInputCurrentDatabase = "" }) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Close, contentDescription = null
+                                    )
+                                }
+                            }
+                        },
+                        textStyle = TextStyle(fontFamily = HarmonyOS_Sans_SC, fontWeight = FontWeight.Normal)
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(16.dp))
                 Column {
                     Text(
@@ -152,10 +184,12 @@ fun settingsContents() {
 
                 Button(
                     onClick = {
-                        testResult = testDatabaseConnection(databaseUrl, userInputUserName, userInputPassword)
+                        testResult = testDatabaseConnection(userInputUrl, userInputUserName, userInputPassword, userInputCurrentDatabase)
                         if (testResult) {
                             databaseUserName = userInputUserName
                             databasePassword = userInputPassword
+                            databaseUrl = userInputUrl
+                            currentDatabase = userInputCurrentDatabase
                             isDatabaseConnected = true
                         }
                     }, contentPadding = PaddingValues(

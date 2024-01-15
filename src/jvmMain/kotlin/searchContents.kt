@@ -27,7 +27,7 @@ fun searchContents() {
     var isButtonClicked by remember { mutableStateOf(false) }
     var isInputValid by remember { mutableStateOf(false) }
 
-    isDatabaseAvailable = testDatabaseConnection(databaseUrl, databaseUserName, databasePassword)
+    isDatabaseAvailable = testDatabaseConnection(databaseUrl, databaseUserName, databasePassword, currentDatabase)
     if (isDatabaseAvailable) {
         MaterialTheme {
             Spacer(modifier = Modifier.width(32.dp))

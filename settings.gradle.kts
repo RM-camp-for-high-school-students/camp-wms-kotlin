@@ -13,5 +13,5 @@ pluginManagement {
     }
 }
 
-rootProject.name = "robomasterGoodsManagement"
+rootProject.name = "camp-wms-kotlin"
 

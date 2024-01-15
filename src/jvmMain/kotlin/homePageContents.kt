@@ -18,7 +18,7 @@ import java.sql.DriverManager
 fun homePageContents() {
     var isDatabaseAvailable by remember { mutableStateOf(false) }
 
-    isDatabaseAvailable = testDatabaseConnection(databaseUrl, databaseUserName, databasePassword)
+    isDatabaseAvailable = testDatabaseConnection(databaseUrl, databaseUserName, databasePassword, currentDatabase)
     if (isDatabaseAvailable) {
         MaterialTheme {
             Spacer(modifier = Modifier.width(32.dp))

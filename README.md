@@ -1,16 +1,12 @@
-# Robomaster-WMS
+# camp-wms-kotlin
 ## Introduction
-Robomaster-WMS is a desktop application for managing the warehouse of the Robomaster summer camps and the winter camps.
+camp-wms-kotlin is a desktop application for managing the warehouse of the Robomaster summer camps and the winter camps.
 
 It is based on the Compose Multiplatform Framework developed by JetBrains.
 
 ## Usage
 ### Installation
-Robomaster-WMS is now released to two platforms: Windows and Linux.
-
-For Windows users, please download the latest version from [here](https://github.com/RM-camp-for-high-school-students/robomaster-wms/releases/download/releases/Robomaster-WMS-v1.2.0-Windows.zip).
-
-For Linux users, please download the latest version from [here](https://github.com/RM-camp-for-high-school-students/robomaster-wms/releases/download/releases/Robomaster-WMS-v1.2.0-Linux.tar.gz).
+camp-wms-kotlin is now released to two platforms: Windows and Linux.
 
 After downloading, please extract the downloaded file to the desired location.
 
@@ -21,7 +17,7 @@ For Linux users, please run the following command:
 
 ```bash
 cd bin
-./robomaster-wms
+./camp-wms-kotlin
 ```
 
 ## Copyright
