@@ -83,3 +83,9 @@ CREATE TABLE `transactions` (
   CONSTRAINT `fk_transactions_member` FOREIGN KEY (`memberID`) REFERENCES `group_members` (`memberID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3125 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+INSERT rm_group
+    (groupID, groupName) VALUE ('SP', 'SP');
+
+INSERT group_members
+    (memberID, groupID) VALUE ('SP000001', 'SP');
